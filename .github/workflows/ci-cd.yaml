@@ -21,6 +21,11 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@v3
+      
+      - name: Verify Kind Cluster
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
 
   build-and-deploy:
     needs: setup
