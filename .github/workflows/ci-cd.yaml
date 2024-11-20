@@ -16,6 +16,7 @@ jobs:
       - name: Set up Kubernetes with Kind
         uses: helm/kind-action@v1.3.0
         with:
+          cluster-name: kind
           kubernetes-version: "v1.26.0"
 
       - name: Install Helm
@@ -31,10 +32,10 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t kastanov7/catfact:latest .
+          docker build -t catfact:latest .
       
       - name: Load Docker Image into Kind
-        run: kind load docker-image kastanov7/catfact:latest
+        run: kind load docker-image catfact:latest --name kind
 
       - name: Deploy Application using Helm
         run: |
