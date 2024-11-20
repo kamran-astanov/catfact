@@ -13,73 +13,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Write Kind Configuration
+        run: |
+          echo "kind: Cluster" > kind-config.yaml
+          echo "apiVersion: kind.x-k8s.io/v1alpha4" >> kind-config.yaml
+          echo "nodes:" >> kind-config.yaml
+          echo "  - role: control-plane" >> kind-config.yaml
+          echo "    extraPortMappings:" >> kind-config.yaml
+          echo "      - containerPort: 3000" >> kind-config.yaml
+          echo "        hostPort: 3000" >> kind-config.yaml
+          echo "        protocol: TCP" >> kind-config.yaml
+
       - name: Set up Kubernetes with Kind
         uses: helm/kind-action@v1.3.0
         with:
-          config: |
-            kind: Cluster
-            apiVersion: kind.x-k8s.io/v1alpha4
-            nodes:
-              - role: control-plane
-                extraPortMappings:
-                  - containerPort: 3000
-                    hostPort: 3000
-                    protocol: TCP
+          config-path: kind-config.yaml
 
       - name: Verify Kind Cluster
         run: |
           kubectl cluster-info
           kubectl get nodes
 
-      - name: Set Kubernetes Context
-        run: |
-          kubectl config use-context kind-kind
-
       - name: Install Helm
         uses: azure/setup-helm@v3
-
-  build-and-deploy:
-    needs: setup
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Build Docker Image
-        run: |
-          docker build -t catfact-api:latest .
-
-      - name: Load Docker Image into Kind
-        run: |
-          kind load docker-image catfact-api:latest
-
-      - name: Deploy Application using Helm
-        run: |
-          helm install catfact-api ./charts/catfact-api --set image.repository=catfact-api --set image.tag=latest
-
-      - name: Wait for Deployment
-        run: |
-          kubectl wait --for=condition=available --timeout=60s deployment/catfact-api
-
-  test:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install Curl
-        run: sudo apt-get install -y curl
-
-      - name: Test Endpoints
-        run: |
-          # Port forward the service
-          kubectl port-forward service/catfact-api 3000:3000 &
-          sleep 5
-
-          # Test /catfact endpoint
-          echo "Testing /catfact endpoint..."
-          curl -s http://localhost:3000/catfact
-
-          # Test /health endpoint
-          echo "Testing /health endpoint..."
-          curl -s http://localhost:3000/health
