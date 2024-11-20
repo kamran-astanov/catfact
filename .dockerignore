@@ -1,0 +1,12 @@
+.dockerignore
+Dockerfile
+
+*.pyc
+__pycache__/
+.env
+.git
+.gitignore
+.vscode/
+*.log
+*.tmp
+node_modules/
