@@ -16,16 +16,27 @@ jobs:
       - name: Set up Kubernetes with Kind
         uses: helm/kind-action@v1.3.0
         with:
-          cluster-name: kind
-          kubernetes-version: "v1.26.0"
+          config: |
+            kind: Cluster
+            apiVersion: kind.x-k8s.io/v1alpha4
+            nodes:
+              - role: control-plane
+                extraPortMappings:
+                  - containerPort: 3000
+                    hostPort: 3000
+                    protocol: TCP
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-      
       - name: Verify Kind Cluster
         run: |
           kubectl cluster-info
           kubectl get nodes
+
+      - name: Set Kubernetes Context
+        run: |
+          kubectl config use-context kind-kind
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
 
   build-and-deploy:
     needs: setup
@@ -37,10 +48,11 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t catfact:latest .
-      
+          docker build -t catfact-api:latest .
+
       - name: Load Docker Image into Kind
-        run: kind load docker-image catfact:latest --name kind
+        run: |
+          kind load docker-image catfact-api:latest
 
       - name: Deploy Application using Helm
         run: |
@@ -63,7 +75,7 @@ jobs:
           # Port forward the service
           kubectl port-forward service/catfact-api 3000:3000 &
           sleep 5
-          
+
           # Test /catfact endpoint
           echo "Testing /catfact endpoint..."
           curl -s http://localhost:3000/catfact
