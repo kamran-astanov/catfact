@@ -1,0 +1,67 @@
+name: CI/CD Pipeline for Cat Fact API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubernetes with Kind
+        uses: helm/kind-action@v1.3.0
+        with:
+          kubernetes-version: "v1.26.0"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+  build-and-deploy:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        run: |
+          docker build -t catfact-api:latest .
+      
+      - name: Load Docker Image into Kind
+        run: kind load docker-image catfact-api:latest
+
+      - name: Deploy Application using Helm
+        run: |
+          helm install catfact-api ./charts/catfact-api --set image.repository=catfact-api --set image.tag=latest
+
+      - name: Wait for Deployment
+        run: |
+          kubectl wait --for=condition=available --timeout=60s deployment/catfact-api
+
+  test:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Curl
+        run: sudo apt-get install -y curl
+
+      - name: Test Endpoints
+        run: |
+          # Port forward the service
+          kubectl port-forward service/catfact-api 3000:3000 &
+          sleep 5
+          
+          # Test /catfact endpoint
+          echo "Testing /catfact endpoint..."
+          curl -s http://localhost:3000/catfact
+
+          # Test /health endpoint
+          echo "Testing /health endpoint..."
+          curl -s http://localhost:3000/health
