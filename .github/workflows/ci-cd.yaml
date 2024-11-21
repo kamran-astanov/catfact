@@ -80,10 +80,15 @@ jobs:
         run: |
           docker images | grep catfact-api
 
+      # Step 9: Load Docker Image into Kind
+      - name: Load Docker Image into Kind
+        run: |
+          kind load docker-image catfact-api --name kind
+
       # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
-          helm install catfact-api ./charts --set image.repository=catfact-api --set image.tag=latest --set image.pullPolicy=IfNotPresent
+          helm upgrade --install catfact-api ./charts --set image.repository=catfact-api --set image.tag=latest --set image.pullPolicy=IfNotPresent
       
       - name: Wait for Container to be Ready
         run: |

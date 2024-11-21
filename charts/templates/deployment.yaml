@@ -15,5 +15,6 @@ spec:
       containers:
       - name: catfact-api
         image: catfact-api
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
