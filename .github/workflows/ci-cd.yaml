@@ -88,6 +88,21 @@ jobs:
       - name: Deploy Application using Helm
         run: |
           helm install catfact-api ./charts
+      
+      - name: Wait for Container to be Ready
+        run: |
+          echo "Waiting for all containers to be in Running state..."
+          for i in {1..15}; do
+            STATUS=$(kubectl get pods -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}')
+            if [ "$STATUS" != "ContainerCreating" or "$STATUS" != "Pending"]; then
+              echo "Containers are ready!"
+              break
+            else
+              echo "Container is still in creating state. Retrying in 10s..."
+              sleep 10
+            fi
+          done
+          kubectl get pods -o wide
 
       # Step 10: Get Pod Status
       - name: Get Pod Status
