@@ -8,7 +8,6 @@ This is a simple Flask-based web application that fetches random cat facts from 
   - [Local Setup](#local-setup)
   - [Docker Setup](#docker-setup)
   - [Kubernetes with Helm Setup](#kubernetes-with-helm-setup)
-- [Testing the Application](#testing-the-application)
 - [CI/CD with GitHub Actions](#cicd-with-github-actions)
 - [Contributing](#contributing)
 - [License](#license)
@@ -70,30 +69,6 @@ If using Minikube or Kind, you may need to use port forwarding to access the app
 
 	 kubectl port-forward svc/catfact-api 8080:8080
 
-
-## Testing the Application
-
-To test the application locally or in Docker, you can use curl or Postman to check the endpoints:
-
-Health Check:
-
-	 curl http://localhost:8080/catfact
-
-Example Response:
-
-	 { 
-	   "fact": "Cats have five toes on their front paws, but only four toes on their back paws."
-	 }
-
-Get Random Cat Fact:
-
-	 curl http://localhost:8080/health
-
-Example Response:
-
-	 {
-	   "status": "OK"
-	 }
 
 ## CI/CD with GitHub Actions
 
