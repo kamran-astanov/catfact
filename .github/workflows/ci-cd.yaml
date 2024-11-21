@@ -72,7 +72,7 @@ jobs:
       # Step 7: Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t catfact-api:latest .
+          docker build -t catfact-api .
 
       # Step 8: Validate Docker Image in Kind
       - name: Validate Docker Image in Kind
@@ -82,7 +82,7 @@ jobs:
       # Step 9: Load Docker Image into Kind
       - name: Load Docker Image into Kind
         run: |
-          kind load docker-image catfact-api:latest --name kind
+          kind load docker-image catfact-api --name kind
 
       # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
@@ -94,11 +94,12 @@ jobs:
           echo "Waiting for all containers to be in Running state..."
           for i in {1..5}; do
             STATUS=$(kubectl get pods -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}')
-            if [ "$STATUS" != "ContainerCreating" or "$STATUS" != "Pending"]; then
+            if [ "$STATUS" != "ContainerCreating" or "$STATUS" != "Pending" or "ImagePullBackOff" or "ErrImagePull"]; then
               echo "Containers are ready!"
               break
             else
               kubectl get pods -o wide
+              kubectl describe pods
               sleep 10
             fi
           done
