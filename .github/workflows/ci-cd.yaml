@@ -88,7 +88,7 @@ jobs:
       # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
-          helm upgrade --install catfact-api ./charts --set image.repository=catfact-api --set image.tag=latest --set image.pullPolicy=IfNotPresent
+          helm upgrade --install catfact-api ./charts --set image.repository=catfact-api --set image.tag=latest --set image.pullPolicy=Never
       
       - name: Wait for Container to be Ready
         run: |
