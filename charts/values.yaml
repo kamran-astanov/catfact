@@ -2,7 +2,7 @@ replicaCount: 1
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
 
 ingress:
-  host: "catfact-api.local"
+  host: "catfact-api"

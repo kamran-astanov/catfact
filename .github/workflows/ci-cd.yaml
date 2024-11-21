@@ -109,8 +109,8 @@ jobs:
 
           # Test /catfact endpoint
           echo "Testing /catfact endpoint..."
-          curl -s http://localhost/catfact
+          curl -s http://localhost:8080/catfact
 
           # Test /health endpoint
           echo "Testing /health endpoint..."
-          curl -s http://localhost/health
+          curl -s http://localhost:8080/health
