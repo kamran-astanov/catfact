@@ -4,7 +4,6 @@ metadata:
   name: catfact-ingress
 spec:
   rules:
-    - host: {{ .Values.ingress.host }}
       http:
         paths:
         - path: /catfact
