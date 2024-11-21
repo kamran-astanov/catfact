@@ -57,7 +57,7 @@ Create a Kubernetes Cluster: You can use a local cluster like Minikube or Kind.
 
 **Install the Application Using Helm**:
 
-	 helm install catfact ./charts
+	 helm install catfact-api ./charts
 **Verify the Deployment**: 
 
 	 kubectl get pods
