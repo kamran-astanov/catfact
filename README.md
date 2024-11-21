@@ -8,7 +8,6 @@ This is a simple Flask-based web application that fetches random cat facts from 
   - [Local Setup](#local-setup)
   - [Docker Setup](#docker-setup)
   - [Kubernetes with Helm Setup](#kubernetes-with-helm-setup)
-- [Testing the Application](#testing-the-application)
 - [CI/CD with GitHub Actions](#cicd-with-github-actions)
 - [Contributing](#contributing)
 - [License](#license)
@@ -57,7 +56,7 @@ Create a Kubernetes Cluster: You can use a local cluster like Minikube or Kind.
 
 **Install the Application Using Helm**:
 
-	 helm install catfact ./charts
+	 helm install catfact-api ./charts
 **Verify the Deployment**: 
 
 	 kubectl get pods
@@ -68,51 +67,131 @@ Create a Kubernetes Cluster: You can use a local cluster like Minikube or Kind.
 
 If using Minikube or Kind, you may need to use port forwarding to access the app:
 
-	 kubectl port-forward svc/catfact-app 5000:5000
+	 kubectl port-forward svc/catfact-api 8080:8080
 
-
-## Testing the Application
-
-To test the application locally or in Docker, you can use curl or Postman to check the endpoints:
-
-Health Check:
-
-	 curl http://localhost:5000/health
-
-Example Response:
-
-	 { 
-	   "fact": "Cats have five toes on their front paws, but only four toes on their back paws."
-	 }
-
-Get Random Cat Fact:
-
-	 curl http://localhost:5000/catfact
-
-Example Response:
-
-	 {
-	   "status": "healthy"
-	 }
 
 ## CI/CD with GitHub Actions
+
+**PATH** for CI/CD Pipeline: .github/workflows/ci-cd.yaml
 
 This project is configured with GitHub Actions to automatically test and deploy the application.
 
 ### Workflow Steps:
 
-**Build Docker Image**: The workflow builds the Docker image on every push to the main branch.
+### Steps Explained:
 
-**Run Tests**: Tests are run using curl or a similar tool to verify the application is responding.
+**Checkout Code**
+  
+This step checks out the code from the GitHub repository to the runner, ensuring that all the required files are available.
 
-**Deploy to Kubernetes**: The workflow also deploys the app to a Kubernetes cluster using Helm.
+**Write Kind Configuration**
+
+    cat <<EOF > kind-config.yaml
+    kind: Cluster
+    apiVersion: kind.x-k8s.io/v1alpha4
+    networking:
+      disableDefaultCNI: false
+    nodes:
+      - role: control-plane
+        extraPortMappings:
+          - containerPort: 5000
+            hostPort: 5000
+            protocol: TCP
+    EOF
+
+Generates a custom configuration for the Kind cluster. The extraPortMappings map Kubernetes container ports to the host for testing purposes.
 
 
-### Check the Workflow:
+**Set up Kubernetes with Kind**
 
-The workflow runs automatically whenever you push code to GitHub.
+    kind delete cluster --name kind || true
+    
+    kind create cluster --name kind --config=kind-config.yaml
 
-You can see the status of the workflow in the Actions tab of the repository.
+Creates a Kubernetes cluster using Kind with the specified configuration.
+
+
+**Remove Taint from Control Plane**
+
+    kubectl taint nodes --all node.kubernetes.io/not-ready-
+
+Removes default taints from the control-plane node, enabling it to schedule workloads.
+
+
+**Wait for Node to be Ready**
+
+    echo "Waiting for node to be in Ready state..."
+    for i in {1..10}; do
+      kubectl get nodes | grep -q ' Ready ' && break
+      echo "Node not ready yet. Retrying in 10s..."
+      sleep 10
+    done
+    kubectl get nodes
+
+Ensures the Kubernetes node is in the Ready state before proceeding.
+
+
+**Verify Kind Cluster**
+
+    kubectl cluster-info
+    
+    kubectl get nodes
+
+Verifies the Kind cluster setup by checking cluster information and node readiness.
+
+
+**Set Kubernetes Context**
+
+    kubectl config use-context kind-kind
+
+Sets the current Kubernetes context to the Kind cluster for subsequent commands.
+
+
+**Install Helm**
+
+Installs Helm on the GitHub runner to manage Kubernetes deployments.
+
+**Build Docker Image**
+
+    docker build -t catfact-api .
+
+Builds the Docker image for the CatFact API application.
+
+**Load Docker Image into Kind**
+
+    kind load docker-image catfact-api --name kind
+
+Loads the Docker image into the Kind cluster for local use, bypassing the need for a container registry.
+
+**Deploy Application using Helm**
+
+    helm upgrade --install catfact-api ./charts
+
+**Wait for Pods to be Ready**
+
+    kubectl get pods
+    sleep 10
+    kubectl get pods
+
+**Install Curl**
+
+    sudo apt-get install -y curl
+
+Installs curl on the GitHub runner for testing the application endpoints.
+
+**Test Endpoints**
+
+    kubectl port-forward service/catfact-api 8080:8080 &
+    sleep 10
+
+    # Test /catfact endpoint
+    echo "Testing /catfact endpoint..."
+    curl -s http://localhost:8080/catfact
+
+    # Test /health endpoint
+    echo "Testing /health endpoint..."
+    curl -s http://localhost:8080/health
+
 
 ## Contributing
 
