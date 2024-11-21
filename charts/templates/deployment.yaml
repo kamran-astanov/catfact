@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: catfact-app
+  name: catfact-api
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: catfact-app
+      app: catfact-api
   template:
     metadata:
       labels:
-        app: catfact-app
+        app: catfact-api
     spec:
       containers:
-      - name: catfact-app
+      - name: catfact-api
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
         - containerPort: 5000
