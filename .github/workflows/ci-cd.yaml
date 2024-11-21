@@ -6,13 +6,15 @@ on:
       - main
 
 jobs:
-  setup:
+  ci-cd:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Step 2: Write Kind Configuration
       - name: Write Kind Configuration
         run: |
           cat <<EOF > kind-config.yaml
@@ -26,54 +28,51 @@ jobs:
                   protocol: TCP
           EOF
 
+      # Step 3: Set up Kubernetes with Kind
       - name: Set up Kubernetes with Kind
         run: |
-          kind create cluster --name kind --config=kind-config.yaml --wait
+          kind create cluster --name kind --config=kind-config.yaml
 
+      # Step 4: Verify Kind Cluster
       - name: Verify Kind Cluster
         run: |
           kubectl cluster-info
           kubectl get nodes
 
+      # Step 5: Set Kubernetes Context
       - name: Set Kubernetes Context
         run: |
           kubectl config use-context kind-kind
 
+      # Step 6: Install Helm
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-  build-and-deploy:
-    needs: setup
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
+      # Step 7: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t catfact-api:latest .
 
+      # Step 8: Load Docker Image into Kind
       - name: Load Docker Image into Kind
         run: |
           kind load docker-image catfact-api:latest --name kind
 
+      # Step 9: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
           helm install catfact-api ./charts/catfact-api --set image.repository=catfact-api --set image.tag=latest
 
+      # Step 10: Wait for Deployment
       - name: Wait for Deployment
         run: |
           kubectl wait --for=condition=available --timeout=60s deployment/catfact-api
 
-  test:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-
-    steps:
+      # Step 11: Install Curl
       - name: Install Curl
         run: sudo apt-get install -y curl
 
+      # Step 12: Test Endpoints
       - name: Test Endpoints
         run: |
           # Port forward the service
