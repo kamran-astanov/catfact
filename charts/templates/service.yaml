@@ -8,5 +8,5 @@ spec:
     app: catfact-api
   ports:
     - protocol: TCP
-      port: 5000
+      port: 1234
       targetPort: 5000
