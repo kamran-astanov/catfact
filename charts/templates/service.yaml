@@ -3,9 +3,11 @@ kind: Service
 metadata:
   name: catfact-api
 spec:
+  type: NodePort
   selector:
     app: catfact-api
   ports:
-  - protocol: TCP
-    port: 5000
-    targetPort: 5000
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30001 # Optional: Specify the NodePort (between 30000 and 32767)

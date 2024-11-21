@@ -5,4 +5,4 @@ service:
   port: 5000
 
 ingress:
-  host: "127.0.0.1"
+  host: "localhost"

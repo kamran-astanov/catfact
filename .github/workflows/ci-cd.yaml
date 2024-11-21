@@ -89,7 +89,7 @@ jobs:
       - name: Deploy Application using Helm
         run: |
           helm upgrade --install catfact-api ./charts 
-          
+
       - name: Wait for Container to be Ready
         run: |
           kubectl get pods
@@ -104,13 +104,13 @@ jobs:
       - name: Test Endpoints
         run: |
           # Port forward the service
-          kubectl port-forward service/catfact-api 5000:5000 &
-          sleep 5
+          # kubectl port-forward service/catfact-api 5000:5000 &
+          # sleep 10
 
           # Test /catfact endpoint
           echo "Testing /catfact endpoint..."
-          curl -s http://localhost:5000/catfact
+          curl -s http://localhost:30001/catfact
 
           # Test /health endpoint
           echo "Testing /health endpoint..."
-          curl -s http://localhost:5000/health
+          curl -s http://localhost:30001/health
