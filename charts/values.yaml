@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: catfact-app
+  repository: catfact-api
   tag: latest
   pullPolicy: IfNotPresent
 
