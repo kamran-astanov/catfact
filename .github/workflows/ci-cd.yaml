@@ -35,7 +35,9 @@ jobs:
 
       - name: Remove Taint from Control Plane
         run: |
-          kubectl taint nodes --all node.kubernetes.io/not-ready- node-role.kubernetes.io/control-plane- 
+          kubectl get nodes
+          kubectl taint nodes --all node.kubernetes.io/not-ready- 
+          kubectl describe node kind | grep Taints
 
       # Step 4: Verify Kind Cluster
       - name: Verify Kind Cluster
