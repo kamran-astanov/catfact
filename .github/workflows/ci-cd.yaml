@@ -76,7 +76,7 @@ jobs:
       - name: Test Endpoints
         run: |
           # Port forward the service
-          kubectl port-forward service/catfact-api 3000:3000 &
+          kubectl port-forward service/catfact-api 5000:5000 &
           sleep 5
 
           # Test /catfact endpoint
