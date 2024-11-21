@@ -52,11 +52,20 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t catfact-api:latest .
+    
+     - name: Validate Docker Image in Kind
+       run: |
+        docker images | grep catfact-api
 
       # Step 8: Load Docker Image into Kind
       - name: Load Docker Image into Kind
         run: |
-          kind load docker-image catfact-api:latest --name kind
+          kind load docker-image catfact-api:latest
+      
+      - name: Get Pod Status
+        run: |
+          kubectl get pods -o wide
+          kubectl describe pods
 
       # Step 9: Deploy Application using Helm
       - name: Deploy Application using Helm
