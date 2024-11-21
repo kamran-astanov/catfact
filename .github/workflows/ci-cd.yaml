@@ -52,36 +52,38 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t catfact-api:latest .
-    
-     - name: Validate Docker Image in Kind
-       run: |
-        docker images | grep catfact-api
 
-      # Step 8: Load Docker Image into Kind
+      # Step 8: Validate Docker Image in Kind
+      - name: Validate Docker Image in Kind
+        run: |
+          docker images | grep catfact-api
+
+      # Step 9: Load Docker Image into Kind
       - name: Load Docker Image into Kind
         run: |
           kind load docker-image catfact-api:latest --name kind
-      
+
+      # Step 10: Get Pod Status
       - name: Get Pod Status
         run: |
           kubectl get pods -o wide
           kubectl describe pods
 
-      # Step 9: Deploy Application using Helm
+      # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
           helm install catfact-api ./charts
 
-      # Step 10: Wait for Deployment
+      # Step 12: Wait for Deployment
       - name: Wait for Deployment
         run: |
           kubectl apply -f ./charts/templates/.
 
-      # Step 11: Install Curl
+      # Step 13: Install Curl
       - name: Install Curl
         run: sudo apt-get install -y curl
 
-      # Step 12: Test Endpoints
+      # Step 14: Test Endpoints
       - name: Test Endpoints
         run: |
           # Port forward the service
