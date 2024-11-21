@@ -33,13 +33,15 @@ jobs:
       # Step 3: Set up Kubernetes with Kind
       - name: Set up Kubernetes with Kind
         run: |
+          kind delete cluster --name kind || true
           kind create cluster --name kind --config=kind-config.yaml
 
       - name: Remove Taint from Control Plane
         run: |
-          kubectl get nodes
+          kubectl get nodes -o wide
           kubectl describe node kind-control-plane
           kubectl describe node kind | grep Taints
+          docker logs kind-control-plane
           kubectl taint nodes --all node.kubernetes.io/not-ready-
 
       # Step 4: Verify Kind Cluster
