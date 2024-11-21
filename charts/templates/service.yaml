@@ -4,7 +4,7 @@ metadata:
   name: catfact-api
 spec:
   selector:
-    app: catfact-app
+    app: catfact-api
   ports:
   - protocol: TCP
     port: 5000
