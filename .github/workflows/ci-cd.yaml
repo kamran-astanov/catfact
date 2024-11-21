@@ -33,6 +33,7 @@ jobs:
       # Step 3: Set up Kubernetes with Kind
       - name: Set up Kubernetes with Kind
         run: |
+          ls -la
           kind delete cluster --name kind || true
           kind create cluster --name kind --config=kind-config.yaml
 
@@ -79,36 +80,26 @@ jobs:
         run: |
           docker images | grep catfact-api
 
-      # Step 9: Load Docker Image into Kind
-      - name: Load Docker Image into Kind
-        run: |
-          kind load docker-image catfact-api --name kind
-
       # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
-          helm install catfact-api ./charts
+          helm install catfact-api ./charts --set image.repository=catfact-api --set image.tag=latest --set image.pullPolicy=IfNotPresent
       
       - name: Wait for Container to be Ready
         run: |
-          echo "Waiting for all containers to be in Running state..."
-          for i in {1..5}; do
-            STATUS=$(kubectl get pods -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}')
-            if [ "$STATUS" != "ContainerCreating" or "$STATUS" != "Pending" or "ImagePullBackOff" or "ErrImagePull"]; then
-              echo "Containers are ready!"
-              break
-            else
-              kubectl get pods -o wide
-              kubectl describe pods
-              sleep 10
-            fi
-          done
-
-      # Step 10: Get Pod Status
-      - name: Get Pod Status
-        run: |
-          kubectl get pods -o wide
-          kubectl describe pods
+            echo "Waiting for all containers to be in Running state..."
+            for i in {1..10}; do
+              STATUS=$(kubectl get pods -o jsonpath='{.items[0].status.containerStatuses[0].state.waiting.reason}')
+              if [ "$STATUS" == "Running" ]; then
+                echo "Containers are running!"
+                break
+              else
+                kubectl get pods -o wide
+                kubectl describe pods
+                echo "Container is still in state: $STATUS. Retrying in 10s..."
+                sleep 10
+              fi
+              done
 
       # Step 13: Install Curl
       - name: Install Curl
