@@ -61,7 +61,7 @@ jobs:
       # Step 9: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
-          helm install catfact-api ./charts/templates
+          helm install catfact-api ./charts
 
       # Step 10: Wait for Deployment
       - name: Wait for Deployment
