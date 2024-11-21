@@ -1,9 +1,6 @@
 replicaCount: 1
 
-image:
-  repository: kastanov7/catfact-api
-  tag: latest
-  pullPolicy: IfNotPresent
+image: catfact-api
 
 service:
   type: ClusterIP
