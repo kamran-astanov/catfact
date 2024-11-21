@@ -33,6 +33,10 @@ jobs:
         run: |
           kind create cluster --name kind --config=kind-config.yaml
 
+      - name: Remove Taint from Control Plane
+        run: |
+          kubectl taint nodes --all node.kubernetes.io/not-ready- node-role.kubernetes.io/control-plane- 
+
       # Step 4: Verify Kind Cluster
       - name: Verify Kind Cluster
         run: |
