@@ -68,7 +68,7 @@ Create a Kubernetes Cluster: You can use a local cluster like Minikube or Kind.
 
 If using Minikube or Kind, you may need to use port forwarding to access the app:
 
-	 kubectl port-forward svc/catfact-app 5000:5000
+	 kubectl port-forward svc/catfact-api 8080:8080
 
 
 ## Testing the Application
@@ -77,7 +77,7 @@ To test the application locally or in Docker, you can use curl or Postman to che
 
 Health Check:
 
-	 curl http://localhost:5000/health
+	 curl http://localhost:8080/health
 
 Example Response:
 
@@ -87,7 +87,7 @@ Example Response:
 
 Get Random Cat Fact:
 
-	 curl http://localhost:5000/catfact
+	 curl http://localhost:8080/catfact
 
 Example Response:
 
