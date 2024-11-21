@@ -1,8 +1,8 @@
 replicaCount: 1
 
 service:
-  type: NodePort
-  port: 5000
+  type: ClusterIP
+  port: 80
 
 ingress:
-  host: "localhost"
+  host: "catfact-api.local"

@@ -3,11 +3,10 @@ kind: Service
 metadata:
   name: catfact-api
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: catfact-api
   ports:
     - protocol: TCP
-      port: 5000
+      port: 80
       targetPort: 5000
-      nodePort: 30001 # Optional: Specify the NodePort (between 30000 and 32767)
