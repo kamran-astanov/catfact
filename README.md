@@ -97,22 +97,108 @@ Example Response:
 
 ## CI/CD with GitHub Actions
 
+**PATH** for CI/CD Pipeline: .github/workflows/ci-cd.yaml
+
 This project is configured with GitHub Actions to automatically test and deploy the application.
 
 ### Workflow Steps:
 
-**Build Docker Image**: The workflow builds the Docker image on every push to the main branch.
+### Steps Explained:
 
-**Run Tests**: Tests are run using curl or a similar tool to verify the application is responding.
+**1. Checkout Code**
 
-**Deploy to Kubernetes**: The workflow also deploys the app to a Kubernetes cluster using Helm.
+- name: Checkout Code
+  uses: actions/checkout@v3
+  
+This step checks out the code from the GitHub repository to the runner, ensuring that all the required files are available.
+
+**2. Write Kind Configuration**
+
+- name: Write Kind Configuration
+  run: |
+    cat <<EOF > kind-config.yaml
+    kind: Cluster
+    apiVersion: kind.x-k8s.io/v1alpha4
+    networking:
+      disableDefaultCNI: false
+    nodes:
+      - role: control-plane
+        extraPortMappings:
+          - containerPort: 5000
+            hostPort: 5000
+            protocol: TCP
+    EOF
+
+Generates a custom configuration for the Kind cluster. The extraPortMappings map Kubernetes container ports to the host for testing purposes.
 
 
-### Check the Workflow:
+**3. Set up Kubernetes with Kind**
 
-The workflow runs automatically whenever you push code to GitHub.
+- name: Set up Kubernetes with Kind
+  run: |
+    kind delete cluster --name kind || true
+    kind create cluster --name kind --config=kind-config.yaml
 
-You can see the status of the workflow in the Actions tab of the repository.
+Creates a Kubernetes cluster using Kind with the specified configuration.
+
+
+**4. Remove Taint from Control Plane**
+
+- name: Remove Taint from Control Plane
+  run: |
+    kubectl taint nodes --all node.kubernetes.io/not-ready-
+
+Removes default taints from the control-plane node, enabling it to schedule workloads.
+
+
+
+**5. Wait for Node to be Ready**
+
+- name: Wait for Node to be Ready
+  run: |
+    echo "Waiting for node to be in Ready state..."
+    for i in {1..10}; do
+      kubectl get nodes | grep -q ' Ready ' && break
+      echo "Node not ready yet. Retrying in 10s..."
+      sleep 10
+    done
+    kubectl get nodes
+
+Ensures the Kubernetes node is in the Ready state before proceeding.
+
+
+**6. Verify Kind Cluster**
+
+- name: Verify Kind Cluster
+  run: |
+    kubectl cluster-info
+    kubectl get nodes
+
+Verifies the Kind cluster setup by checking cluster information and node readiness.
+
+
+**7. Set Kubernetes Context**
+
+- name: Set Kubernetes Context
+  run: |
+    kubectl config use-context kind-kind
+
+Sets the current Kubernetes context to the Kind cluster for subsequent commands.
+
+
+**8. Install Helm****
+
+- name: Install Helm
+  uses: azure/setup-helm@v3
+
+Installs Helm on the GitHub runner to manage Kubernetes deployments.
+
+
+
+
+
+
+
 
 ## Contributing
 
