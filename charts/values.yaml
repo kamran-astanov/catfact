@@ -1,8 +1,28 @@
 replicaCount: 1
 
+image:
+  repository: catfact-api
+  tag: latest
+  pullPolicy: Never
+
 service:
   type: ClusterIP
-  port: 1234
+  port: 8080
+  targetPort: 5000
 
 ingress:
-  host: "catfact-api"
+  enabled: true
+  host: catfact-api
+  path: /catfact
+  pathType: Prefix
+
+container:
+  port: 5000
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"

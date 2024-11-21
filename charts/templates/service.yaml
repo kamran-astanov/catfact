@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: catfact-api
 spec:
-  type: ClusterIP
+  type: {{ .Values.service.type }}
   selector:
     app: catfact-api
   ports:
     - protocol: TCP
-      port: 1234
-      targetPort: 5000
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
