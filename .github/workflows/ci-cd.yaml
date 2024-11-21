@@ -30,6 +30,7 @@ jobs:
         uses: helm/kind-action@v1.3.0
         with:
           config-path: kind-config.yaml
+          wait: true
 
       - name: Verify Kind Cluster
         run: |
