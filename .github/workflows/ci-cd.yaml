@@ -88,8 +88,8 @@ jobs:
       # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
-          helm upgrade --install catfact-api ./charts --set image.repository=catfact-api --set image.tag=latest --set image.pullPolicy=Never
-      
+          helm upgrade --install catfact-api ./charts 
+          
       - name: Wait for Container to be Ready
         run: |
           kubectl get pods
