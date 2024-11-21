@@ -77,7 +77,7 @@ To test the application locally or in Docker, you can use curl or Postman to che
 
 Health Check:
 
-	 curl http://localhost:8080/health
+	 curl http://localhost:8080/catfact
 
 Example Response:
 
@@ -87,12 +87,12 @@ Example Response:
 
 Get Random Cat Fact:
 
-	 curl http://localhost:8080/catfact
+	 curl http://localhost:8080/health
 
 Example Response:
 
 	 {
-	   "status": "healthy"
+	   "status": "OK"
 	 }
 
 ## CI/CD with GitHub Actions
