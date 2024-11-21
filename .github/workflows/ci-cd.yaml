@@ -33,16 +33,12 @@ jobs:
       # Step 3: Set up Kubernetes with Kind
       - name: Set up Kubernetes with Kind
         run: |
-          ls -la
           kind delete cluster --name kind || true
           kind create cluster --name kind --config=kind-config.yaml
 
       - name: Remove Taint from Control Plane
         run: |
-          kubectl get nodes -o wide
-          kubectl describe node kind-control-plane
           kubectl describe node kind | grep Taints
-          docker logs kind-control-plane
           kubectl taint nodes --all node.kubernetes.io/not-ready-
       
       - name: Wait for Node to be Ready
@@ -55,37 +51,26 @@ jobs:
           done
           kubectl get nodes
 
-      # Step 4: Verify Kind Cluster
-      - name: Verify Kind Cluster
-        run: |
-          kubectl cluster-info
-          kubectl get nodes
-
-      # Step 5: Set Kubernetes Context
+      # Step 4: Set Kubernetes Context
       - name: Set Kubernetes Context
         run: |
           kubectl config use-context kind-kind
 
-      # Step 6: Install Helm
+      # Step 5: Install Helm
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      # Step 7: Build Docker Image
+      # Step 6: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t catfact-api .
 
-      # Step 8: Validate Docker Image in Kind
-      - name: Validate Docker Image in Kind
-        run: |
-          docker images | grep catfact-api
-
-      # Step 9: Load Docker Image into Kind
+      # Step 7: Load Docker Image into Kind
       - name: Load Docker Image into Kind
         run: |
           kind load docker-image catfact-api --name kind
 
-      # Step 11: Deploy Application using Helm
+      # Step 8: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
           helm upgrade --install catfact-api ./charts 
@@ -96,11 +81,11 @@ jobs:
           sleep 10
           kubectl get pods
 
-      # Step 13: Install Curl
+      # Step 9: Install Curl
       - name: Install Curl
         run: sudo apt-get install -y curl
 
-      # Step 14: Test Endpoints
+      # Step 10: Test Endpoints
       - name: Test Endpoints
         run: |
       
