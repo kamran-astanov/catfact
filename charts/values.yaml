@@ -1,7 +1,5 @@
 replicaCount: 1
 
-image: catfact-api
-
 service:
   type: ClusterIP
   port: 5000
