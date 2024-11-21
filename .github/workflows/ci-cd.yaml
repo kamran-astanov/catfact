@@ -63,12 +63,6 @@ jobs:
         run: |
           kind load docker-image catfact-api:latest --name kind
 
-      # Step 10: Get Pod Status
-      - name: Get Pod Status
-        run: |
-          kubectl get pods -o wide
-          kubectl describe pods
-
       # Step 11: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
@@ -78,6 +72,12 @@ jobs:
       - name: Wait for Deployment
         run: |
           kubectl apply -f ./charts/templates/.
+
+      # Step 10: Get Pod Status
+      - name: Get Pod Status
+        run: |
+          kubectl get pods -o wide
+          kubectl describe pods
 
       # Step 13: Install Curl
       - name: Install Curl
