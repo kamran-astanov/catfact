@@ -43,6 +43,16 @@ jobs:
           kubectl describe node kind | grep Taints
           docker logs kind-control-plane
           kubectl taint nodes --all node.kubernetes.io/not-ready-
+      
+      - name: Wait for Node to be Ready
+        run: |
+          echo "Waiting for node to be in Ready state..."
+          for i in {1..10}; do
+            kubectl get nodes | grep -q ' Ready ' && break
+            echo "Node not ready yet. Retrying in 10s..."
+            sleep 10
+          done
+          kubectl get nodes
 
       # Step 4: Verify Kind Cluster
       - name: Verify Kind Cluster
