@@ -26,7 +26,7 @@ jobs:
             - role: control-plane
               extraPortMappings:
                 - containerPort: 5000
-                  hostPort: 5000
+                  hostPort: 2000
                   protocol: TCP
           EOF
 
@@ -60,32 +60,35 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
 
-      # Step 6: Build Docker Image
+      # Step 6: Add pre-steps for linting
+      - name: Lint Helm Charts
+        run: helm lint ./charts
+
+      # Step 7: Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t catfact-api .
 
-      # Step 7: Load Docker Image into Kind
+      # Step 8: Load Docker Image into Kind
       - name: Load Docker Image into Kind
         run: |
           kind load docker-image catfact-api --name kind
 
-      # Step 8: Deploy Application using Helm
+      # Step 9: Deploy Application using Helm
       - name: Deploy Application using Helm
         run: |
           helm upgrade --install catfact-api ./charts 
 
-      - name: Wait for Container to be Ready
+      # Step 10: Replace sleep with dynamic pod readiness check
+      - name: Wait for Pods to be Ready
         run: |
-          kubectl get pods
-          sleep 10
-          kubectl get pods
+          kubectl wait --for=condition=ready pod --all --timeout=120s
 
-      # Step 9: Install Curl
+      # Step 11: Install Curl
       - name: Install Curl
         run: sudo apt-get install -y curl
 
-      # Step 10: Test Endpoints
+      # Step 12: Test Endpoints
       - name: Test Endpoints
         run: |
       
@@ -94,8 +97,12 @@ jobs:
 
           # Test /catfact endpoint
           echo "Testing /catfact endpoint..."
-          curl -s http://localhost:5000/catfact
+          curl -s http://localhost:2000/catfact
 
           # Test /health endpoint
           echo "Testing /health endpoint..."
-          curl -s http://localhost:5000/health
+          curl -s http://localhost:2000/health
+
+      # Step 13: Clean up resources
+      - name: Clean Up Kind Cluster
+        run: kind delete cluster --name kind
