@@ -92,9 +92,6 @@ jobs:
       # Step 12: Test Endpoints
       - name: Test Endpoints
         run: |
-      
-          #kubectl port-forward service/catfact-api 8080:5000 &
-          #sleep 10
 
           # Test /catfact endpoint
           echo "Testing /catfact endpoint..."
