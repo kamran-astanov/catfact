@@ -26,7 +26,7 @@ jobs:
             - role: control-plane
               extraPortMappings:
                 - containerPort: 5000
-                  hostPort: 2000
+                  hostPort: 8080
                   protocol: TCP
           EOF
 
