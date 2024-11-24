@@ -89,13 +89,13 @@ jobs:
       - name: Test Endpoints
         run: |
       
-          kubectl port-forward service/catfact-api 8080:8080 &
-          sleep 10
+          #kubectl port-forward service/catfact-api 8080:8080 &
+          #sleep 10
 
           # Test /catfact endpoint
           echo "Testing /catfact endpoint..."
-          curl -s http://localhost:8080/catfact
+          curl -s http://localhost:5000/catfact
 
           # Test /health endpoint
           echo "Testing /health endpoint..."
-          curl -s http://localhost:8080/health
+          curl -s http://localhost:5000/health
